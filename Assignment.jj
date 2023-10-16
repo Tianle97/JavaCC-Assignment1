@@ -1,0 +1,282 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = false;
+  jdk_version = "1.8";
+}
+
+PARSER_BEGIN(assignment1)
+package assignment1;
+import java.io.PrintStream;
+import java.util.HashMap;
+public class assignment1
+{
+  public HashMap < String, Double > hashMap = new HashMap < String, Double > ();
+  public static void main(String args []) throws ParseException
+  {
+    assignment1 parser = new assignment1(System.in);
+	    System.out.println("Welcom to Tianle-Language  ^_^");
+	    parser.Start(System.out);
+	    //System.out.println("Thank you for using this parse");
+  }
+  double previousValue = 0.0;
+}
+
+PARSER_END(assignment1)
+
+SKIP :
+{
+  " "
+| "\n"
+}
+
+//Skip the comments
+SKIP :
+{
+  < "#" (~[ "\n" ])* "\n" >
+}
+
+SPECIAL_TOKEN : //Comments
+{
+  < SINGLE_LINE_COMMENT : "#" (~[ "\n", "\r" ])* >
+}
+
+TOKEN : /* Symbol */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+| < EQUALS : "=" >
+| < SEMIC : ";" >
+| < EOL :
+    "\n"
+  | "\r"
+  | "\r\n" >
+}
+
+TOKEN : /* Keywords */
+{
+  < OPEN_PAR : "(" >
+| < CLOSE_PAR : ")" >
+| < PREVIOUS : "$" >
+| < PRINT :
+    "print"
+  | "PRINT" >
+| < VAR :
+    "var"
+  | "VAR" >
+| < IF : "if" >
+| < ISNOT : "isNot" >
+| < LOOP :
+    "loop"
+  | "LOOP" >
+| <QUOTE: "'">
+| <COMMA: ","> 
+//| <ANY: ([ "_", "~", "a"-"z", "A"-"Z","0"-"9"])+>
+}
+
+TOKEN :
+{
+  < ID :
+    < LETTER >
+    (
+      < DIGITS >
+    | < LETTER >
+    )* >
+   
+}
+TOKEN :
+{
+	< #LETTER : ([ "_", "~", "a"-"z", "A"-"Z" ])+ >
+}
+
+TOKEN :
+{
+  < NUMBER :
+    < DIGITS >
+	  | < DIGITS > "." < DIGITS > >
+| 
+  < #DIGITS : ([ "0"-"9" ])+ >
+}
+
+void Start(PrintStream printStream) throws NumberFormatException :
+{}
+{
+  (
+	    //LOOKAHEAD(2,<ID ><EQUALS >)
+	    assignExp() < SEMIC > //a=1;赋值代表式
+	  | printFunction() < SEMIC >
+    //    	< EOL >
+    //  | 
+    //    previousValue = Expression() 
+    //    < EOL >
+    //    {
+    //      printStream.println(previousValue);
+    //    }
+  )*
+  //  < EOF >
+}
+
+//print Function
+void printFunction() throws IllegalArgumentException :
+{
+  Object target = null;
+  Token t;
+}
+{
+  (< PRINT >) 
+	  < OPEN_PAR >
+	  (
+	    t = < ID >
+	    {
+	      try {
+	        	target = GetValue(String.valueOf(t.image));
+	      	}
+     	 	catch (Exception e) {
+	        	target = String.valueOf(t.image);
+	      	}
+	    }
+	  | target = PrintString()
+	  | target = Expression()
+    //	  | target = PrintString(String.valueOf(t.image))
+  )
+  < CLOSE_PAR >
+  {
+    //    new PrintStream().println(target);
+		    System.out.println(target);
+  }
+}
+
+//print String value
+String PrintString():
+{
+  Token t;
+}
+{
+  <QUOTE> t = < ID > <QUOTE >
+  { return t.toString(); }
+}
+
+HashMap < String, Double > assignExp() :
+{
+  Token t;
+  double value;
+}
+{
+  (< VAR >) 
+  t = < ID > 
+	  < EQUALS >
+	  (
+	    value = Expression()
+    {
+      hashMap.put(t.image, value);
+      System.out.println("hash" + hashMap.get(t.image) + " " + hashMap.size() + "]]");
+    }
+	  )
+	  {
+    return hashMap;
+  }
+}
+
+double GetValue(String t) :
+{
+  double value;
+}
+{
+  {
+    value = hashMap.get(t);
+  }
+  {
+    return value;
+  }
+}
+
+double Expression() :
+{
+  double i;
+  double value;
+}
+{
+  value = Term()
+  (
+    < PLUS > 
+    i = Term()
+    {
+      value += i;
+    }
+  | 
+    < MINUS > 
+    i = Term()
+    {
+      value -= i;
+    }
+  )*
+  //  < EOF >
+  {
+    return value;
+  }
+}
+
+/* priority of multiply and division */
+double Term() :
+{
+  double i;
+  double value;
+}
+{
+  value = Primary()
+  (
+    < MULTIPLY > 
+    i = Primary()
+    {
+      value *= i;
+    }
+  | 
+    < DIVIDE > 
+    i = Primary()
+    {
+      value /= i;
+    }
+  )*
+  {
+    return value;
+  }
+}
+
+/* to get the number or "(",")" of user input */
+double Primary() throws NumberFormatException :
+{
+  Token t;
+  double d;
+}
+{
+  t = < NUMBER >
+  {
+    //    System.out.println("idnnn");
+    return Double.parseDouble(t.image);
+  }
+| t = < ID >
+  {
+    //    System.out.println(GetValue(String.valueOf(t.image)));
+    return GetValue(String.valueOf(t.image));
+  }
+  //| 
+  //	  < PREVIOUS >
+  //	  {
+  //    return previousValue;
+  //  }
+| 
+	  < OPEN_PAR > d = Expression() < CLOSE_PAR >
+	  {
+    return d;
+  }
+| 
+	  < MINUS > 
+	  d = Primary()
+	  {
+    return - d;
+  }
+}

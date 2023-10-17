@@ -75,8 +75,10 @@ TOKEN : /* Keywords */
   | "LOOP" >
 | <QUOTE: "'">
 | <COMMA: ","> 
-//| <ANY: ([ "_", "~", "a"-"z", "A"-"Z","0"-"9"])+>
+
 }
+
+
 
 TOKEN :
 {
@@ -107,8 +109,8 @@ void Start(PrintStream printStream) throws NumberFormatException :
 {
   (
 	    //LOOKAHEAD(2,<ID ><EQUALS >)
-	    assignExp() < SEMIC > //a=1;赋值代表式
-	  | printFunction() < SEMIC >
+	    AssignExp() < SEMIC > //a=1;赋值代表式
+	  | PrintFunction() < SEMIC >
     //    	< EOL >
     //  | 
     //    previousValue = Expression() 
@@ -121,7 +123,7 @@ void Start(PrintStream printStream) throws NumberFormatException :
 }
 
 //print Function
-void printFunction() throws IllegalArgumentException :
+void PrintFunction() throws IllegalArgumentException :
 {
   Object target = null;
   Token t;
@@ -156,11 +158,11 @@ String PrintString():
   Token t;
 }
 {
-  <QUOTE> t = < ID > <QUOTE >
+  <QUOTE> t= <ID> <QUOTE >
   { return t.toString(); }
 }
 
-HashMap < String, Double > assignExp() :
+HashMap < String, Double > AssignExp() :
 {
   Token t;
   double value;

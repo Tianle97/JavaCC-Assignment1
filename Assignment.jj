@@ -375,7 +375,7 @@ void Exp(String start, String key) :
   }
 }
 
-String Second(String s, String ss, String key) :
+String Second(String s, String start, String key) :
 {
   Token t;
   String s1;
@@ -383,16 +383,16 @@ String Second(String s, String ss, String key) :
 {
   < COMMA > 
   t = < NUMBER > 
-  s1 = Third(s, ss, t.image, key)
+  s1 = Third(s, start, t.image, key)
   {
     if (s1 == null)
     {
-      for (int i = Integer.valueOf(ss); i < Integer.parseInt(t.image); i++)
+      for (int i = Integer.valueOf(start); i < Integer.parseInt(t.image); i++)
       {
         ele.add(i);
       }
       loopMap.put(key, ele);
-      return "int " + s + "=" + ss + ";" + s + "<" + t.image + ";" + s + "+=1";
+      return "target";
     }
     else
     {
@@ -406,7 +406,7 @@ String Second(String s, String ss, String key) :
   }
 }
 
-String Third(String s, String ss, String sss, String key) :
+String Third(String s, String start, String end, String key) :
 {
   Token t;
 }
@@ -414,12 +414,12 @@ String Third(String s, String ss, String sss, String key) :
   < COMMA > 
   t = < NUMBER >
   {
-    for (int i = Integer.valueOf(ss); i < Integer.valueOf(sss); i += Integer.parseInt(t.image))
+    for (int i = Integer.valueOf(start); i < Integer.valueOf(end); i += Integer.parseInt(t.image))
     {
       ele.add(i);
     }
     loopMap.put(key, ele);
-    return "int " + s + "=" + ss + ";" + s + "<" + sss + ";" + s + "+=" + t.image;
+    return "target";
   }
 |
   {}

@@ -10,10 +10,14 @@ options
 PARSER_BEGIN(assignment1)
 package assignment1;
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.util.*;
 public class assignment1
 {
+  //store the variable's value
   public HashMap < String, Double > hashMap = new HashMap < String, Double > ();
+  //use for loop function
+  public HashMap < String, ArrayList < Integer > > loopMap = new HashMap < String, ArrayList < Integer > > ();
+  public ArrayList < Integer > ele = new ArrayList < > ();
   public static void main(String args []) throws ParseException
   {
     assignment1 parser = new assignment1(System.in);
@@ -43,6 +47,15 @@ SPECIAL_TOKEN : //Comments
   < SINGLE_LINE_COMMENT : "#" (~[ "\n", "\r" ])* >
 }
 
+TOKEN : /* arithmetic operation */
+{
+  < LT : "<" >
+| < GT : ">" >
+| < LTE : "<=" >
+| < GTE : ">=" >
+| < EQ : "==" >
+}
+
 TOKEN : /* Symbol */
 {
   < PLUS : "+" >
@@ -51,34 +64,35 @@ TOKEN : /* Symbol */
 | < DIVIDE : "/" >
 | < EQUALS : "=" >
 | < SEMIC : ";" >
+| < COLON : ":" >
 | < EOL :
     "\n"
   | "\r"
   | "\r\n" >
+| < OPEN_PAR : "(" >
+| < CLOSE_PAR : ")" >
+| < PREVIOUS : "$" >
+| < QUOTE : "'" >
+| < COMMA : "," >
 }
 
 TOKEN : /* Keywords */
 {
-  < OPEN_PAR : "(" >
-| < CLOSE_PAR : ")" >
-| < PREVIOUS : "$" >
-| < PRINT :
+  < PRINT :
     "print"
   | "PRINT" >
 | < VAR :
     "var"
   | "VAR" >
-| < IF : "if" >
+| < IF : "if " >
 | < ISNOT : "isNot" >
 | < LOOP :
     "loop"
   | "LOOP" >
-| <QUOTE: "'">
-| <COMMA: ","> 
-
+| < IN : "in" >
+| < RANGE : "range" >
+  //|   <STRING: ([ "_", "~", "a"-"z", "A"-"Z","0"-"9"," " ])+>
 }
-
-
 
 TOKEN :
 {
@@ -88,11 +102,11 @@ TOKEN :
       < DIGITS >
     | < LETTER >
     )* >
-   
 }
+
 TOKEN :
 {
-	< #LETTER : ([ "_", "~", "a"-"z", "A"-"Z" ])+ >
+	  < #LETTER : ([ "_", "~", "a"-"z", "A"-"Z" ])+ >
 }
 
 TOKEN :
@@ -111,6 +125,7 @@ void Start(PrintStream printStream) throws NumberFormatException :
 	    //LOOKAHEAD(2,<ID ><EQUALS >)
 	    AssignExp() < SEMIC > //a=1;赋值代表式
 	  | PrintFunction() < SEMIC >
+	  | Loop()
     //    	< EOL >
     //  | 
     //    previousValue = Expression() 
@@ -125,8 +140,9 @@ void Start(PrintStream printStream) throws NumberFormatException :
 //print Function
 void PrintFunction() throws IllegalArgumentException :
 {
-  Object target = null;
+  Object target;
   Token t;
+  boolean flag = false;
 }
 {
   (< PRINT >) 
@@ -134,32 +150,38 @@ void PrintFunction() throws IllegalArgumentException :
 	  (
 	    t = < ID >
 	    {
-	      try {
-	        	target = GetValue(String.valueOf(t.image));
-	      	}
-     	 	catch (Exception e) {
-	        	target = String.valueOf(t.image);
-	      	}
+	      try
+	      {
+		        target = GetValue(String.valueOf(t.image));
+		      }
+		      catch (Exception e)
+		      {
+		        flag = true;
+		        target = "Invalid Syntax";
+		      }
 	    }
 	  | target = PrintString()
 	  | target = Expression()
-    //	  | target = PrintString(String.valueOf(t.image))
-  )
+	  )
   < CLOSE_PAR >
   {
-    //    new PrintStream().println(target);
+    if (flag) 
+		    System.err.println(target);
+	    else 
 		    System.out.println(target);
   }
 }
 
 //print String value
-String PrintString():
+String PrintString() :
 {
   Token t;
 }
 {
-  <QUOTE> t= <ID> <QUOTE >
-  { return t.toString(); }
+  < QUOTE > t = < ID > < QUOTE >
+  {
+    return t.toString();
+  }
 }
 
 HashMap < String, Double > AssignExp() :
@@ -175,7 +197,7 @@ HashMap < String, Double > AssignExp() :
 	    value = Expression()
     {
       hashMap.put(t.image, value);
-      System.out.println("hash" + hashMap.get(t.image) + " " + hashMap.size() + "]]");
+      System.out.println("Debug hash" + hashMap.get(t.image) + " " + hashMap.size() + "]]");
     }
 	  )
 	  {
@@ -183,14 +205,24 @@ HashMap < String, Double > AssignExp() :
   }
 }
 
-double GetValue(String t) :
+String GetValue(String t) :
 {
-  double value;
+  String value;
+  String i = "";
 }
 {
   {
-    value = hashMap.get(t);
-  }
+    value = String.valueOf(hashMap.get(t));
+    if (loopMap.containsKey(t))
+    {
+      ele = loopMap.get(t);
+      for (int e : ele)
+      {
+        i = i + String.valueOf(e) + "\n";
+      }
+      value = i; //Debug - System.out.println("keyiii-"+value);
+    }
+	  }
   {
     return value;
   }
@@ -263,7 +295,7 @@ double Primary() throws NumberFormatException :
 | t = < ID >
   {
     //    System.out.println(GetValue(String.valueOf(t.image)));
-    return GetValue(String.valueOf(t.image));
+    return Double.parseDouble(GetValue(String.valueOf(t.image)));
   }
   //| 
   //	  < PREVIOUS >
@@ -280,5 +312,118 @@ double Primary() throws NumberFormatException :
 	  d = Primary()
 	  {
     return - d;
+  }
+}
+
+void Loop() :
+{
+  Token t;
+  String s1;
+  String s2;
+  String key;
+}
+{
+  < LOOP > 
+  t = < ID >
+  {
+    if (!loopMap.containsKey(t.image) && !hashMap.containsKey(t.image))
+    {
+      ele = new ArrayList < > ();
+	      key = String.valueOf(t.image);
+	      loopMap.put(key, ele);
+    }
+    else 
+	    throw new ParseException(t + " is already defined");
+  }
+  < IN > 
+  < RANGE > 
+  Indexing(t.image, key) 
+  < COLON >
+}
+
+void Indexing(String t, String key) :
+{
+  String s1;
+}
+{
+  < OPEN_PAR > 
+  Exp(t, key)
+  {
+    System.out.println("key-" + key);
+  }
+  < CLOSE_PAR >
+}
+
+void Exp(String start, String key) :
+{
+  Token t;
+  String s1;
+}
+{
+  t = < NUMBER > 
+  s1 = Second(start, t.image, key)
+  {
+    if (s1 == null)
+    {
+	      for (int i = 0; i <= Integer.parseInt(t.image); i++)
+      {
+	        ele.add(i);
+	        System.out.println("i-" + i);
+	      }
+	      loopMap.put(key, ele);
+	    }
+  }
+}
+
+String Second(String s, String ss, String key) :
+{
+  Token t;
+  String s1;
+}
+{
+  < COMMA > 
+  t = < NUMBER > 
+  s1 = Third(s, ss, t.image, key)
+  {
+    if (s1 == null)
+    {
+      for (int i = Integer.valueOf(ss); i < Integer.parseInt(t.image); i++)
+      {
+        ele.add(i);
+      }
+      loopMap.put(key, ele);
+      return "int " + s + "=" + ss + ";" + s + "<" + t.image + ";" + s + "+=1";
+    }
+    else
+    {
+      return s1;
+    }
+  }
+|
+  {}
+  {
+    return null;
+  }
+}
+
+String Third(String s, String ss, String sss, String key) :
+{
+  Token t;
+}
+{
+  < COMMA > 
+  t = < NUMBER >
+  {
+    for (int i = Integer.valueOf(ss); i < Integer.valueOf(sss); i += Integer.parseInt(t.image))
+    {
+      ele.add(i);
+    }
+    loopMap.put(key, ele);
+    return "int " + s + "=" + ss + ";" + s + "<" + sss + ";" + s + "+=" + t.image;
+  }
+|
+  {}
+  {
+    return null;
   }
 }

@@ -62,7 +62,7 @@ TOKEN : /* Symbol */
 | < MINUS : "-" >
 | < MULTIPLY : "*" >
 | < DIVIDE : "/" >
-| < EQUALS : "=" >
+| < ASSIGN : "=" >
 | < SEMIC : ";" >
 | < COLON : ":" >
 | < EOL :
@@ -91,7 +91,7 @@ TOKEN : /* Keywords */
   | "LOOP" >
 | < IN : "in" >
 | < RANGE : "range" >
-  //|   <STRING: ([ "_", "~", "a"-"z", "A"-"Z","0"-"9"," " ])+>
+//| <STRING: ([ "_", "~", "a"-"z", "A"-"Z","0"-"9"," " ])+>
 }
 
 TOKEN :
@@ -153,6 +153,10 @@ void PrintFunction() throws IllegalArgumentException :
 	      try
 	      {
 		        target = GetValue(String.valueOf(t.image));
+		        if(target == null || target.equals("null") ){
+		          	flag = true;
+		        	target = "Invalid Syntax";
+		        }
 		      }
 		      catch (Exception e)
 		      {
@@ -179,7 +183,7 @@ String PrintString() :
 }
 {
   < QUOTE > t = < ID > < QUOTE >
-  {
+  { System.out.println("string"+t.toString());
     return t.toString();
   }
 }
@@ -192,7 +196,7 @@ HashMap < String, Double > AssignExp() :
 {
   (< VAR >) 
   t = < ID > 
-	  < EQUALS >
+	  < ASSIGN >
 	  (
 	    value = Expression()
     {
@@ -221,8 +225,9 @@ String GetValue(String t) :
         i = i + String.valueOf(e) + "\n";
       }
       value = i; //Debug - System.out.println("keyiii-"+value);
-    }
-	  }
+     }
+     
+	}
   {
     return value;
   }
@@ -332,7 +337,8 @@ void Loop() :
 	      key = String.valueOf(t.image);
 	      loopMap.put(key, ele);
     }
-    else 
+    else
+//    	System.err.println("already defined");
 	    throw new ParseException(t + " is already defined");
   }
   < IN > 
@@ -343,7 +349,6 @@ void Loop() :
 
 void Indexing(String t, String key) :
 {
-  String s1;
 }
 {
   < OPEN_PAR > 
@@ -357,56 +362,56 @@ void Indexing(String t, String key) :
 void Exp(String start, String key) :
 {
   Token t;
-  String s1;
+  boolean flag;
 }
 {
   t = < NUMBER > 
-  s1 = Second(start, t.image, key)
+  flag = Second(start, t.image, key)
   {
-    if (s1 == null)
+    if (flag==false)
     {
 	      for (int i = 0; i <= Integer.parseInt(t.image); i++)
       {
 	        ele.add(i);
-	        System.out.println("i-" + i);
+	        System.out.println("i-" + i+flag);
 	      }
 	      loopMap.put(key, ele);
 	    }
   }
 }
 
-String Second(String s, String start, String key) :
+boolean Second(String s, String start, String key) :
 {
   Token t;
-  String s1;
+  boolean flag = true;
 }
 {
   < COMMA > 
   t = < NUMBER > 
-  s1 = Third(s, start, t.image, key)
+  flag = Third(s, start, t.image, key)
   {
-    if (s1 == null)
+    if (flag == false)
     {
       for (int i = Integer.valueOf(start); i < Integer.parseInt(t.image); i++)
       {
         ele.add(i);
       }
       loopMap.put(key, ele);
-      return "target";
+      return true;
     }
     else
     {
-      return s1;
+      return flag;
     }
   }
 |
   {}
   {
-    return null;
+    return flag;
   }
 }
 
-String Third(String s, String start, String end, String key) :
+boolean Third(String s, String start, String end, String key) :
 {
   Token t;
 }
@@ -419,11 +424,27 @@ String Third(String s, String start, String end, String key) :
       ele.add(i);
     }
     loopMap.put(key, ele);
-    return "target";
+    return true;
   }
 |
   {}
   {
-    return null;
+    return false;
   }
+}
+
+void IfStatement():
+{
+  boolean cond;
+  Token t;
+}
+{
+  t = < IF > cond = condition() < COLON > < ISNOT >  <COLAN >  
+  {
+    if(cond == false) {
+      while(!t.image.equals(" :")) {
+        t = t.next(); 
+      }
+  }
+  
 }

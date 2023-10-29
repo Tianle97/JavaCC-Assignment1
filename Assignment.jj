@@ -7,11 +7,11 @@ options
   jdk_version = "1.8";
 }
 
-PARSER_BEGIN(assignment1)
+PARSER_BEGIN(TianleLang)
 package assignment1;
-import java.io.PrintStream;
+import java.io.PrintStream; 
 import java.util.*;
-public class assignment1
+public class TianleLang
 {
   //store the variable's value
   public HashMap < String, Double > hashMap = new HashMap < String, Double > ();
@@ -20,15 +20,13 @@ public class assignment1
   public ArrayList < Integer > ele = new ArrayList < > ();
   public static void main(String args []) throws ParseException
   {
-    assignment1 parser = new assignment1(System.in);
+    TianleLang parser = new TianleLang(System.in);
 	    System.out.println("Welcom to Tianle-Language  ^_^");
-	    parser.Start(System.out);
-	    //System.out.println("Thank you for using this parse");
+	    parser.Start();
   }
-  double previousValue = 0.0;
 }
 
-PARSER_END(assignment1)
+PARSER_END(TianleLang)
 
 SKIP :
 {
@@ -47,16 +45,7 @@ SPECIAL_TOKEN : //Comments
   < SINGLE_LINE_COMMENT : "#" (~[ "\n", "\r" ])* >
 }
 
-TOKEN : /* arithmetic operation */
-{
-  < LT : "<" >
-| < GT : ">" >
-| < LTE : "<=" >
-| < GTE : ">=" >
-| < EQ : "==" >
-}
-
-TOKEN : /* Symbol */
+TOKEN : /* Symbol TOKEN*/
 {
   < PLUS : "+" >
 | < MINUS : "-" >
@@ -71,12 +60,11 @@ TOKEN : /* Symbol */
   | "\r\n" >
 | < OPEN_PAR : "(" >
 | < CLOSE_PAR : ")" >
-| < PREVIOUS : "$" >
 | < QUOTE : "'" >
 | < COMMA : "," >
 }
 
-TOKEN : /* Keywords */
+TOKEN : /* Keywords TOKEN*/
 {
   < PRINT :
     "print"
@@ -84,14 +72,10 @@ TOKEN : /* Keywords */
 | < VAR :
     "var"
   | "VAR" >
-| < IF : "if " >
-| < ISNOT : "isNot" >
 | < LOOP :
     "loop"
   | "LOOP" >
-| < IN : "in" >
-| < RANGE : "range" >
-//| <STRING: ([ "_", "~", "a"-"z", "A"-"Z","0"-"9"," " ])+>
+| < IN : "in"|"IN" >
 }
 
 TOKEN :
@@ -106,7 +90,7 @@ TOKEN :
 
 TOKEN :
 {
-	  < #LETTER : ([ "_", "~", "a"-"z", "A"-"Z" ])+ >
+	  < #LETTER : ([ "_", "~", "a"-"z"])+ >
 }
 
 TOKEN :
@@ -117,24 +101,17 @@ TOKEN :
 | 
   < #DIGITS : ([ "0"-"9" ])+ >
 }
-
-void Start(PrintStream printStream) throws NumberFormatException :
+//PrintStream printStream
+void Start() throws NumberFormatException :
 {}
 {
   (
-	    //LOOKAHEAD(2,<ID ><EQUALS >)
-	    AssignExp() < SEMIC > //a=1;赋值代表式
+	    AssignExp() < SEMIC > //a=1;赋值代表式,Assign expression
 	  | PrintFunction() < SEMIC >
 	  | Loop()
-    //    	< EOL >
-    //  | 
-    //    previousValue = Expression() 
-    //    < EOL >
-    //    {
-    //      printStream.println(previousValue);
-    //    }
+    
   )*
-  //  < EOF >
+  < EOF >
 }
 
 //print Function
@@ -145,10 +122,10 @@ void PrintFunction() throws IllegalArgumentException :
   boolean flag = false;
 }
 {
-  (< PRINT >) 
+  < PRINT >
 	  < OPEN_PAR >
-	  (
-	    t = < ID >
+	   (
+	      t = < ID >
 	    {
 	      try
 	      {
@@ -156,7 +133,7 @@ void PrintFunction() throws IllegalArgumentException :
 		        if(target == null || target.equals("null") ){
 		          	flag = true;
 		        	target = "Invalid Syntax";
-		        }
+		        } 
 		      }
 		      catch (Exception e)
 		      {
@@ -166,8 +143,8 @@ void PrintFunction() throws IllegalArgumentException :
 	    }
 	  | target = PrintString()
 	  | target = Expression()
-	  )
-  < CLOSE_PAR >
+	)
+	 < CLOSE_PAR >
   {
     if (flag) 
 		    System.err.println(target);
@@ -179,29 +156,31 @@ void PrintFunction() throws IllegalArgumentException :
 //print String value
 String PrintString() :
 {
-  Token t;
+  Token v;
 }
 {
-  < QUOTE > t = < ID > < QUOTE >
-  { System.out.println("string"+t.toString());
-    return t.toString();
+  	< QUOTE > v=< ID > < QUOTE >
+  {
+    String r = v.toString();
+    //System.out.println("string-debug: "+r.toString());
+  	return r;
   }
 }
 
 HashMap < String, Double > AssignExp() :
 {
-  Token t;
+  Token var;
   double value;
 }
 {
-  (< VAR >) 
-  t = < ID > 
+  < VAR >
+  	var = < ID > 
 	  < ASSIGN >
 	  (
 	    value = Expression()
     {
-      hashMap.put(t.image, value);
-      System.out.println("Debug hash" + hashMap.get(t.image) + " " + hashMap.size() + "]]");
+      hashMap.put(var.image, value);
+      //System.out.println("Debug hash" + hashMap.get(var.image) + " " + hashMap.keySet() );
     }
 	  )
 	  {
@@ -294,19 +273,13 @@ double Primary() throws NumberFormatException :
 {
   t = < NUMBER >
   {
-    //    System.out.println("idnnn");
     return Double.parseDouble(t.image);
   }
 | t = < ID >
   {
-    //    System.out.println(GetValue(String.valueOf(t.image)));
+      // System.out.println(GetValue(String.valueOf(t.image)));
     return Double.parseDouble(GetValue(String.valueOf(t.image)));
   }
-  //| 
-  //	  < PREVIOUS >
-  //	  {
-  //    return previousValue;
-  //  }
 | 
 	  < OPEN_PAR > d = Expression() < CLOSE_PAR >
 	  {
@@ -316,7 +289,7 @@ double Primary() throws NumberFormatException :
 	  < MINUS > 
 	  d = Primary()
 	  {
-    return - d;
+    return - d; //if user input negative number
   }
 }
 
@@ -338,11 +311,10 @@ void Loop() :
 	      loopMap.put(key, ele);
     }
     else
-//    	System.err.println("already defined");
+    	//System.err.println("already defined");
 	    throw new ParseException(t + " is already defined");
   }
   < IN > 
-  < RANGE > 
   Indexing(t.image, key) 
   < COLON >
 }
@@ -354,7 +326,7 @@ void Indexing(String t, String key) :
   < OPEN_PAR > 
   Exp(t, key)
   {
-    System.out.println("key-" + key);
+    //System.out.println("key-" + key);
   }
   < CLOSE_PAR >
 }
@@ -370,10 +342,11 @@ void Exp(String start, String key) :
   {
     if (flag==false)
     {
+      
 	      for (int i = 0; i <= Integer.parseInt(t.image); i++)
       {
 	        ele.add(i);
-	        System.out.println("i-" + i+flag);
+	        //System.out.println("i-" + i+flag);
 	      }
 	      loopMap.put(key, ele);
 	    }
@@ -383,7 +356,7 @@ void Exp(String start, String key) :
 boolean Second(String s, String start, String key) :
 {
   Token t;
-  boolean flag = true;
+  boolean flag = false;
 }
 {
   < COMMA > 
@@ -392,7 +365,7 @@ boolean Second(String s, String start, String key) :
   {
     if (flag == false)
     {
-      for (int i = Integer.valueOf(start); i < Integer.parseInt(t.image); i++)
+      for (int i = Integer.valueOf(start); i <= Integer.parseInt(t.image); i++)
       {
         ele.add(i);
       }
@@ -419,7 +392,7 @@ boolean Third(String s, String start, String end, String key) :
   < COMMA > 
   t = < NUMBER >
   {
-    for (int i = Integer.valueOf(start); i < Integer.valueOf(end); i += Integer.parseInt(t.image))
+    for (int i = Integer.valueOf(start); i <= Integer.valueOf(end); i += Integer.parseInt(t.image))
     {
       ele.add(i);
     }
@@ -433,18 +406,5 @@ boolean Third(String s, String start, String end, String key) :
   }
 }
 
-void IfStatement():
-{
-  boolean cond;
-  Token t;
-}
-{
-  t = < IF > cond = condition() < COLON > < ISNOT >  <COLAN >  
-  {
-    if(cond == false) {
-      while(!t.image.equals(" :")) {
-        t = t.next(); 
-      }
-  }
-  
-}
+
+

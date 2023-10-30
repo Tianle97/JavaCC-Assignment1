@@ -13,10 +13,11 @@ import java.io.PrintStream;
 import java.util.*;
 public class TianleLang
 {
-  //store the variable's value
+  // store the variable's value
   public HashMap < String, Double > hashMap = new HashMap < String, Double > ();
-  //use for loop function
+  // use for loop function
   public HashMap < String, ArrayList < Integer > > loopMap = new HashMap < String, ArrayList < Integer > > ();
+  // use Array list to store the loop values
   public ArrayList < Integer > ele = new ArrayList < > ();
   public static void main(String args []) throws ParseException
   {
@@ -195,7 +196,10 @@ String GetValue(String t) :
 }
 {
   {
+
+    // check the value of variable in the variableMap
     value = String.valueOf(hashMap.get(t));
+    // if the values of variable in the loopMap
     if (loopMap.containsKey(t))
     {
       ele = loopMap.get(t);
@@ -304,6 +308,8 @@ void Loop() :
   < LOOP > 
   t = < ID >
   {
+    //check the key in the loopMap already or in the variableMap already
+    //if not it will do next step otherwise throw ParseException
     if (!loopMap.containsKey(t.image) && !hashMap.containsKey(t.image))
     {
       ele = new ArrayList < > ();

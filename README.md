@@ -1,5 +1,5 @@
 # JavaCC-Assignment1
-
+![alt text](https://miro.medium.com/v2/resize:fit:4800/format:webp/1*Z44uuqlXzifISa_GNGM08A.png)
 TUS Master -Cloud Assignment-1 Design&amp;Implements a Computer Language
 
 > Module: Cloud and Computer Architecture  

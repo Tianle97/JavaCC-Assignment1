@@ -28,6 +28,6 @@ It is based on JavaCC, the function logic implemented in Java. But TianleLang Sy
 + Open Eclipse, and import the jj file which git clone from GitHub
   > Find the TianleLang.java file and click Run it
 
-## Syntax see (![User Guide](https://github.com/Tianle97/JavaCC-Assignment1/blob/main/Report.pdf))
+## Syntax see ![User Guide](https://github.com/Tianle97/JavaCC-Assignment1/blob/main/Report.pdf)
 
-## More info in the (![Report](https://github.com/Tianle97/JavaCC-Assignment1/blob/main/User%20Guide-TianleLang.pdf))
+## More info in the ![Report](https://github.com/Tianle97/JavaCC-Assignment1/blob/main/User%20Guide-TianleLang.pdf)

@@ -8,11 +8,11 @@ TUS Master -Cloud Assignment-1 Design&amp;Implements a Computer Language
 
 
 ## About TianleLang
-It is based on JavaCC, the function logic implemented in Java. But TianleLang Syntax is easier to learn and beneficial to Programme beginner.
+It is based on JavaCC, the function logic implemented in Java. But TianleLang Syntax is easier to learn and beneficial to Programme beginners.
 *Implemented:* </br>
 + Assign Expression Function
-+ Display FuncBon
-+ Loop FuncBon
++ Display Function
++ Loop Function
 + Ignore Comment Line
 </br>
 

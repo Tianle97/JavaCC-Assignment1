@@ -4,7 +4,7 @@ TUS Master -Cloud Assignment-1 Design&amp;Implements a Computer Language
 
 > Module: Cloud and Computer Architecture  
 > Lecturer: Dr.Thiago Braga  &   Dr.Niall Murra </br>
-> Students: Tianle Shu A00268357
+> Student: Tianle Shu A00268357
 
 
 ## About TianleLang
